@@ -1,8 +1,13 @@
 package com.example.a40136.getphonelocation;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -27,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initUI();
+        requestPermission();
         getLocation(this);
 
     }
@@ -38,7 +44,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button.setOnClickListener(this);
     }
 
-    private void getLocation(Context context){
+    private void requestPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        } else {
+            Toast.makeText(this, "权限已申请", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){ //同意权限申请
+
+                }else { //拒绝权限申请
+                    Toast.makeText(this,"权限被拒绝了",Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private void getLocation (Context context){
         //1.获取位置管理器
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         //2.获取位置提供器，GPS或是NetWork
@@ -87,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
     @Override
     public void onClick(View view) {
-        textView.setText(locationInfo);
-        Toast.makeText(this,locationInfo,Toast.LENGTH_LONG).show();
+        getLocation(this);
     }
 }
